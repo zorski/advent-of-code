@@ -42,7 +42,7 @@ function Convert-ElfClaimToCoordinates {
 }
 
 $Counter = 0
-$Claims = Get-Content -Path C:\Users\mzaor\moje\AdventOfCode\ps\3day.txt
+$Claims = Get-Content -Path $PSScriptRoot\3day.txt
 $Set = New-Object System.Collections.Generic.HashSet[System.Management.Automation.Host.Coordinates]
 $HelperSet = New-Object System.Collections.Generic.HashSet[System.Management.Automation.Host.Coordinates]
 

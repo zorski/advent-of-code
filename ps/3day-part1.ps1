@@ -1,3 +1,7 @@
+#Require -Version 5.0
+using namespace System.Management.Automation.Host
+using namespace System.Collections.Generic
+
 function Invoke-ElfClaimParsing {
     [CmdletBinding()]
     param (
@@ -35,17 +39,17 @@ function Convert-ElfClaimToCoordinates {
 
         for ($x = $left + 1; $x -le $width + $left; $x++) {
             for ($y = $top + 1; $y -le $height + $top; $y++) {
-                [System.Management.Automation.Host.Coordinates]::new($x, $y)
+                [Coordinates]::new($x, $y)
             }
         }
     }  
 }
 
 $Counter = 0
-$Claims = Get-Content -Path $PSScriptRoot\3day.txt
-$Set = New-Object System.Collections.Generic.HashSet[System.Management.Automation.Host.Coordinates]
-$HelperSet = New-Object System.Collections.Generic.HashSet[System.Management.Automation.Host.Coordinates]
+$Set = [HashSet[Coordinates]]::new()
+$HelperSet = [HashSet[Coordinates]]::new()
 
+$Claims = Get-Content -Path $PSScriptRoot\3day.txt
 $Claims  | Invoke-ElfClaimParsing | Convert-ElfClaimToCoordinates | ForEach-Object {
     if (-not($Set.Add($PSItem))) {
         if (-not($HelperSet.Contains($PSItem))) {

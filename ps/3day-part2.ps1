@@ -50,32 +50,28 @@ function Convert-ElfClaimToCoordinates {
     }
 }
 
-$Counter = 0
-$Set = [HashSet[Coordinates]]::new()
-$HelperSet = [HashSet[Coordinates]]::new()
-$AllClaimsSet = [HashSet[int]]::new()
-1..3 | ForEach-Object { [void]$AllClaimsSet.Add($PSItem) }
+$Material = New-Object 'int[,]' -ArgumentList 1000, 1000
+$AllClaims = [HashSet[int]]@(1..1373)
 $OverlappingClaimsSet = [HashSet[int]]::new()
-
-# $Claims = Get-Content -Path "C:\Users\michal.zaorski\Documents\moje\AdventOfCode\advent-of-code\3day.txt"
-$Claims = @"
-#1 @ 1,3: 4x4
-#2 @ 3,1: 4x4
-#3 @ 5,5: 2x2
-"@ -split "`n", "" | ForEach-Object { $PSItem.Trim() }
+$Claims = Get-Content -Path "$PSScriptRoot\3day.txt"
 
 $Claims | Invoke-ElfClaimParsing | Convert-ElfClaimToCoordinates | ForEach-Object {
+    $Claim = $PSItem.ClaimID
 
     while ($PSItem.Coordinates.Count -gt 0) {
         $Coordinate = $PSItem.Coordinates.Pop()
-
-        if (-not($Set.Add($Coordinate))) {
-            [void]$OverlappingClaimsSet.Add($PSItem.ClaimID)
-            break
+        $X = $Coordinate.X - 1 
+        $Y = $Coordinate.Y - 1
+        
+        if ($Material[$X, $Y]) {
+            # Add previous / existing claim
+            [void]$OverlappingClaimsSet.Add(($Material[$X, $Y]))
+            # Add current claim
+            [void]$OverlappingClaimsSet.Add($Claim)
+        } else {
+            $Material[$X, $Y] = $Claim
         }
     }
 }
-
-# Write-Output "How many square inches of fabric are within two or more claims? $Counter"
-# Write-Output "Claim: {0}" -f $($ClaimsSet.ExceptWith($DuplicateClaimsSet))
-
+$AllClaims.ExceptWith($OverlappingClaimsSet)
+Write-Output $AllClaims

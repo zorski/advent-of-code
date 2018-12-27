@@ -1,2 +1,6 @@
-ps/3day.txt
+*.txt
+ps/*.txt
+python/*.txt
 ps/test.ps1
+.idea
+.idea/*

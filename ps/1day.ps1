@@ -1,7 +1,9 @@
-[int[]]$Frequencies = Get-Content -Path "$HOME\Desktop\freq"
+[int[]]$Frequencies = Get-Content -Path "$PSScriptRoot\..\python\1day-input.txt"
 $Set = New-Object System.Collections.Generic.HashSet[int]
+$iteration = 0
 
 while (!$FrequencyFound) {
+    Write-Output $iteration++
     :frequencyloop foreach ($Number in $Frequencies) {
         $CurrentSum += $Number
 

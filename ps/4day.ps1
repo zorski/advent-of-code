@@ -22,31 +22,12 @@ function Invoke-ParseRecords {
     $ParsedRecords
 }
 
-# $Records = Get-Content -Path .\inputs\4day.txt
-$Records = @"
-[1518-11-04 00:02] Guard #99 begins shift
-[1518-11-04 00:46] wakes up
-[1518-11-05 00:03] Guard #99 begins shift
-[1518-11-01 00:25] wakes up
-[1518-11-01 00:30] falls asleep
-[1518-11-01 00:05] falls asleep
-[1518-11-01 00:55] wakes up
-[1518-11-01 23:58] Guard #99 begins shift
-[1518-11-02 00:40] falls asleep
-[1518-11-02 00:50] wakes up
-[1518-11-03 00:05] Guard #10 begins shift
-[1518-11-03 00:24] falls asleep
-[1518-11-03 00:29] wakes up
-[1518-11-04 00:36] falls asleep
-[1518-11-05 00:45] falls asleep
-[1518-11-05 00:55] wakes up
-[1518-11-01 00:00] Guard #10 begins shift
-"@ -split "`n", "" | ForEach-Object { $PSItem.Trim() }
-
-
+$Records = Get-Content -Path .\inputs\4day.txt
 $SortedRecords = Invoke-ParseRecords -Records $Records | Sort-Object -Property Date
 $Guards = @{}
 
+# Gather data about guards:
+# minutes grid and total
 for ($i = 0; $i -lt $SortedRecords.Count; $i++) {
 
     if ($SortedRecords[$i].Action -match "^Guard\s#(?<id>\d+)\sbegins\sshift$") {
@@ -62,22 +43,61 @@ for ($i = 0; $i -lt $SortedRecords.Count; $i++) {
 
             if ($SortedRecords[$j].Action -eq "wakes up") {
                 $MinuteWakesUp = $SortedRecords[$j].Date.Minute
+                
                 # Add Total and Populate the 'minutes' grid
                 $Guards[$GuardID]['total'] += ($MinuteWakesUp - $MinuteAsleep)
                 $MinuteAsleep..($MinuteWakesUp - 1) | ForEach-Object { $Guards[$GuardID]['minutes'][$PSItem]++ }
             }
 
-            if ($SortedRecords[$j].Action.StartsWith("Guard")){
+            if ($SortedRecords[$j].Action.StartsWith("Guard")) {
+                $i = ($j - 1)
                 break
             }
         }
     }
 }
 
+# determine guard with the largest 'total' value
+$Maximum = 0
+foreach ($Guard in $Guards.GetEnumerator()) {
+    if ($Guard.Value['total'] -gt $Maximum) {
+        $Maximum = $Guard.Value['total']
+        $ID = $Guard.Name
+    }
+}
+
+# determine minute with highest frequency of guard being asleep
+$MostAsleepMinute = 0 # index of the largest value in the minutes array
+$Max = 0
+for ($i = 0; $i -lt 60; $i++) {
+    if ($Guards[$ID]['minutes'][$i] -gt $Max) {
+        $Max = $Guards[$ID]['minutes'][$i]
+        $MostAsleepMinute = $i
+    }
+}
 
 
+Write-Output "PART 1: Guard with largest total is Guard #$ID with total of $Maximum minutes asleep and most `"asleep`" minute being $MostAsleepMinute"
+Write-Output "$ID times $MostAsleepMinute equals $([int]$ID * $MostAsleepMinute)"
 
+# Part 2 - find the guard with largest frequency being asleep on particular minute
+$MostFrequentMinute = 0
+foreach ($Guard in $Guards.GetEnumerator()) {
+    if ($Guard.Value['total'] -gt 0) {
+        $MinutesGrid = $Guard.Value['minutes']
+        # Count most asleep minute
+        for ($i = 0; $i -lt 60; $i++) {
+            if ($MinutesGrid[$i] -gt $MostFrequentMinute) {
+                $MostFrequentMinute = $MinutesGrid[$i]
+                $Minute = $i
+                $ID = $Guard.Key
+            }
+        }
+    }
+} 
 
+Write-Output "PART 2: Guard with largest single frequency of particular minute asleep is Guard #$ID and most `"asleep`" minute is $Minute"
+Write-Output "$ID times $Minute equals $([int]$ID * $Minute)"
 
 
 

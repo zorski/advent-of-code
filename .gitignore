@@ -4,3 +4,4 @@ python/*.txt
 ps/test.ps1
 .idea
 .idea/*
+ps/.vscode/launch.json

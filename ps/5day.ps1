@@ -1,6 +1,5 @@
 $Polymer = Get-Content -Path .\inputs\5day.txt
-# $Polymer = ""
-# $Polymer = "dabAcCaCBAcCcaDA"
+$Polymer = "dabAcCaCBAcCcaDA"
 function Test-Letter {
     # Function tests if letters are the same but different case:
     # a ? A -> true
@@ -14,19 +13,24 @@ function Test-Letter {
 
     [System.Math]::Abs([byte]$FirstChar - [byte]$SecondChar) -eq 32  
 }
+
 function React-Polymer {
-    [cmdletbinding()]
+    [CmdletBinding()]
     param (
         [string]$Polymer  
     )
-    
-    for ($i = (0 + [math]::Max(0,($i-1))); $i -lt ($Polymer.Length - 1); $i++) {
-        if (Test-Letter -FirstChar $Polymer[$i] -SecondChar $Polymer[$i + 1]) {
-            # remove from string these two letters
-            $Polymer = React-Polymer -Polymer $Polymer.Remove($i, 2)
+
+    $Buffer = [System.Collections.Generic.Stack[System.Char]]::new('.')
+
+    foreach ($Character in $Polymer.ToCharArray()) {
+        if (Test-Letter -FirstChar $Buffer.Peek() -SecondChar $Character) {
+            [void]$Buffer.Pop()
+        } else {
+            $Buffer.Push($Character)
         }
-    }
-    return $Polymer
+    } 
+    $Buffer 
 }
 
-React-Polymer -Polymer $Polymer
+$Result = React-Polymer -Polymer $Polymer
+

@@ -5,3 +5,4 @@ ps/test.ps1
 .idea
 .idea/*
 ps/.vscode/launch.json
+python/testtest.py

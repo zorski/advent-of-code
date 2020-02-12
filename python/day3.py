@@ -1,7 +1,7 @@
 import string
 import os
 
-input_path = os.path.join(os.getcwd(), 'input', 'day3-part1-testinput.txt')
+input_path = os.path.join(os.getcwd(), 'input', 'day3-input.txt')
 claims = [line.rstrip('\n') for line in open(input_path)]
 parsed_claims = []
 
@@ -32,18 +32,43 @@ for claim in claims:
 counter = 0
 coords = set()
 already_counted = set()
+overlapping_ids = set()
 
 for parsed_claim in parsed_claims:
     for coord in parsed_claim['coordinates']:
         if coord in coords and coord not in already_counted:
             counter += 1
             already_counted.add(coord)
+            overlapping_ids.add(parsed_claim['id'])
         else:
             coords.add(coord)
 
 
 print("There are {} square inches of fabric within two or more claims".format(str(counter)))
 
+# Part Two
+# What is the ID of the only claim that doesn't overlap?
+
+# matrix 1000x1000 - filled with "0"
+material = [[0 for i in range(1000)] for j in range(1000)]
+
+for parsed_claim in parsed_claims:
+    claim_id = parsed_claim['id']
+
+    for coordinate in parsed_claim['coordinates']:
+        x = coordinate[0] - 1
+        y = coordinate[1] - 1
+
+        if material[x][y]:
+            overlapping_ids.add(material[x][y])
+            overlapping_ids.add(claim_id)
+        else:
+            material[x][y] = claim_id
+
+
+all_claims_ids = {claim['id'] for claim in parsed_claims}
+not_overlapping_id = all_claims_ids.difference(overlapping_ids).pop()
+print("Claim that is not overlapping with any other one has an id of {}".format(not_overlapping_id))
 
 
 

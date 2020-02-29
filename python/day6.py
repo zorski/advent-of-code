@@ -67,4 +67,19 @@ for i in range(400):
 print(max(coord_counter.values()))
 
 
+## Part 2
+counter = 0
+grid = [[0 for i in range(400)] for j in range(400)]
 
+for i in range(400):
+    for j in range(400):
+        for c in coordinates:
+            if grid[i][j] <= 10000:
+                grid[i][j] += manhattan_distance(tuple([i, j]), c)
+            else:
+                break
+
+        if grid[i][j] < 10000:
+            counter += 1
+
+print(counter)
